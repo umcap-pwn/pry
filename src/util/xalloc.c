@@ -16,37 +16,40 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void *xmalloc(size_t size) {
-  void *ptr = malloc(size);
-  if (!ptr) {
-    die("Cannot allocate the buffer with size %zu: out of memory!", size);
-  }
-  return ptr;
+void *xmalloc(size_t size)
+{
+	void *ptr = malloc(size);
+	if (!ptr) {
+		die("Cannot allocate the buffer with size %zu: out of memory!", size);
+	}
+	return ptr;
 }
 
-void *xcalloc(size_t memb_size, size_t count) {
-  void *ptr = calloc(memb_size, count);
-  if (!ptr) {
-    die("Cannot allocate the buffer with size %zu: out of memory!",
-        memb_size * count);
-  }
-  return ptr;
+void *xcalloc(size_t memb_size, size_t count)
+{
+	void *ptr = calloc(memb_size, count);
+	if (!ptr) {
+		die("Cannot allocate the buffer with size %zu: out of memory!", memb_size * count);
+	}
+	return ptr;
 }
 
-void *xrealloc(void *buf, size_t size) {
-  void *ptr = realloc(buf, size);
-  if (!ptr) {
-    die("Cannot reallocate the buffer with new size %zu: out of memory!", size);
-  }
-  return ptr;
+void *xrealloc(void *buf, size_t size)
+{
+	void *ptr = realloc(buf, size);
+	if (!ptr) {
+		die("Cannot reallocate the buffer with new size %zu: out of memory!", size);
+	}
+	return ptr;
 }
 
-void die(const char *fmt, ...) {
-  va_list ap;
-  fprintf(stderr, "%s: ", PROGNAME);
-  va_start(ap, fmt);
-  vfprintf(stderr, fmt, ap);
-  va_end(ap);
-  fprintf(stderr, "\n");
-  exit(EXIT_FAILURE);
+void die(const char *fmt, ...)
+{
+	va_list ap;
+	fprintf(stderr, "%s: ", PROGNAME);
+	va_start(ap, fmt);
+	vfprintf(stderr, fmt, ap);
+	va_end(ap);
+	fprintf(stderr, "\n");
+	exit(EXIT_FAILURE);
 }

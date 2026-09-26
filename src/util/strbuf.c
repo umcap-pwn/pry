@@ -28,71 +28,77 @@
 #define STRBUF_INIT_CAP 64 /* Fallback safe default */
 #endif
 
-void strbuf_init(struct strbuf *sb) {
-  if (sb->buf)
-    return;
-  char *buf = xcalloc(1, STRBUF_INIT_CAP);
-  sb->buf = buf;
-  sb->cap = STRBUF_INIT_CAP;
-  sb->len = 0;
+void strbuf_init(struct strbuf *sb)
+{
+	if (sb->buf)
+		return;
+	char *buf = xcalloc(1, STRBUF_INIT_CAP);
+	sb->buf = buf;
+	sb->cap = STRBUF_INIT_CAP;
+	sb->len = 0;
 }
 
-void strbuf_free(struct strbuf *sb) {
-  free(sb->buf);
-  memset(sb, 0, sizeof(struct strbuf)); /* Ignores padding */
+void strbuf_free(struct strbuf *sb)
+{
+	free(sb->buf);
+	memset(sb, 0, sizeof(struct strbuf)); /* Ignores padding */
 }
 
-static void strbuf_grow(struct strbuf *sb, size_t needed) {
-  if (needed > SIZE_MAX / 2 || sb->cap > SIZE_MAX / 2)
-    die("strbuf overflow");
-  size_t new_cap = sb->cap * 2;
-  if (new_cap < needed)
-    new_cap = needed;
+static void strbuf_grow(struct strbuf *sb, size_t needed)
+{
+	if (needed > SIZE_MAX / 2 || sb->cap > SIZE_MAX / 2)
+		die("strbuf overflow");
+	size_t new_cap = sb->cap * 2;
+	if (new_cap < needed)
+		new_cap = needed;
 
-  sb->buf = xrealloc(sb->buf, new_cap);
-  sb->cap = new_cap;
+	sb->buf = xrealloc(sb->buf, new_cap);
+	sb->cap = new_cap;
 }
 
-void strbuf_append(struct strbuf *sb, const char *str, size_t str_len) {
-  if (!sb->buf)
-    strbuf_init(sb);
+void strbuf_append(struct strbuf *sb, const char *str, size_t str_len)
+{
+	if (!sb->buf)
+		strbuf_init(sb);
 
-  if (str_len > sb->cap - (sb->len + 1))
-    strbuf_grow(sb, str_len + (sb->len + 1));
+	if (str_len > sb->cap - (sb->len + 1))
+		strbuf_grow(sb, str_len + (sb->len + 1));
 
-  memmove(sb->buf + sb->len, str, str_len);
-  sb->len += str_len;
-  sb->buf[sb->len] = '\0'; /* xrealloc from grow doesn't null the buffer */
+	memmove(sb->buf + sb->len, str, str_len);
+	sb->len += str_len;
+	sb->buf[sb->len] = '\0'; /* xrealloc from grow doesn't null the buffer */
 }
 
-void strbuf_appendf(struct strbuf *sb, const char *fmt, ...) {
-  if (!sb->buf)
-    strbuf_init(sb);
+void strbuf_appendf(struct strbuf *sb, const char *fmt, ...)
+{
+	if (!sb->buf)
+		strbuf_init(sb);
 
-  va_list ap, ap2;
-  int n;
+	va_list ap, ap2;
+	int n;
 
-  va_start(ap, fmt);
-  va_copy(ap2, ap);
-  n = vsnprintf(NULL, 0, fmt, ap);
-  va_end(ap);
+	va_start(ap, fmt);
+	va_copy(ap2, ap);
+	n = vsnprintf(NULL, 0, fmt, ap);
+	va_end(ap);
 
-  if (n < 0)
-    die("vsnprintf failed!");
+	if (n < 0)
+		die("vsnprintf failed!");
 
-  if ((size_t)n > sb->cap - (sb->len + 1))
-    strbuf_grow(sb, (size_t)n + (sb->len + 1));
+	if ((size_t)n > sb->cap - (sb->len + 1))
+		strbuf_grow(sb, (size_t)n + (sb->len + 1));
 
-  vsnprintf(sb->buf + sb->len, sb->cap - sb->len, fmt, ap2);
-  va_end(ap2);
+	vsnprintf(sb->buf + sb->len, sb->cap - sb->len, fmt, ap2);
+	va_end(ap2);
 
-  sb->len += (size_t)n;
-  /* vsnprintf nulls len'th byte of buf */
+	sb->len += (size_t)n;
+	/* vsnprintf nulls len'th byte of buf */
 }
 
-void strbuf_reset(struct strbuf *sb) {
-  if (!sb->buf)
-    strbuf_init(sb);
-  sb->len = 0;
-  sb->buf[sb->len] = '\0';
+void strbuf_reset(struct strbuf *sb)
+{
+	if (!sb->buf)
+		strbuf_init(sb);
+	sb->len = 0;
+	sb->buf[sb->len] = '\0';
 }

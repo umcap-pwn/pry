@@ -3,14 +3,14 @@
 #include <stddef.h>
 
 #if defined(__GNUC__) || defined(__clang__)
-#define NORETURN __attribute__((noreturn))
-#define PRINTF_FMT(a, b) __attribute__((format(printf, a, b)))
-#define ALLOC_SIZE(n) __attribute__((alloc_size(n)))
+#define NORETURN	     __attribute__((noreturn))
+#define PRINTF_FMT(a, b)     __attribute__((format(printf, a, b)))
+#define ALLOC_SIZE(n)	     __attribute__((alloc_size(n)))
 #define ALLOC_SIZE_NXM(n, m) __attribute__((alloc_size(n, m)))
-#define RETURNS_NONNULL __attribute__((returns_nonnull))
-#define PACKED __attribute__((packed))
-#define UNUSED __attribute__((unused))
-#define WARN_UNUSED __attribute__((warn_unused_result))
+#define RETURNS_NONNULL	     __attribute__((returns_nonnull))
+#define PACKED		     __attribute__((packed))
+#define UNUSED		     __attribute__((unused))
+#define WARN_UNUSED	     __attribute__((warn_unused_result))
 #else
 #define NORETURN
 #define PRINTF_FMT(a, b)
@@ -34,9 +34,9 @@ char *xstrdup(const char *s) RETURNS_NONNULL;
 
 /* Struct strbuf - a vector-like structure to hold a null-terminated string */
 struct strbuf {
-  char *buf;
-  size_t len;
-  size_t cap;
+	char *buf;
+	size_t len;
+	size_t cap;
 };
 
 void strbuf_init(struct strbuf *sb);
