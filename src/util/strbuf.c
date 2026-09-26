@@ -55,10 +55,7 @@ void strbuf_append(struct strbuf *sb, const char *str, size_t str_len) {
   if (!sb->buf)
     strbuf_init(sb);
 
-  if (str_len > SIZE_MAX - (sb->len + 1))
-    die("strbuf overflow");
-
-  if ((sb->len + 1) + str_len > sb->cap)
+  if (str_len > sb->cap - (sb->len + 1))
     strbuf_grow(sb, str_len + (sb->len + 1));
 
   memcpy(sb->buf + sb->len, str, str_len);
@@ -81,7 +78,7 @@ void strbuf_appendf(struct strbuf *sb, const char *fmt, ...) {
   if (n < 0)
     die("vsnprintf failed!");
 
-  if ((sb->len + 1) + (size_t)n > sb->cap)
+  if ((size_t)n > sb->cap - (sb->len + 1))
     strbuf_grow(sb, (size_t)n + (sb->len + 1));
 
   vsnprintf(sb->buf + sb->len, sb->cap - sb->len, fmt, ap2);
