@@ -1,0 +1,33 @@
+# User-defined config
+config.local.mk
+
+# Build output
+*.d
+*.o
+*.a
+*.so
+*.so.*
+/pry
+build/
+out/
+
+# Generated test fixtures (see scripts/gen_fixtures.sh)
+/tests/fixtures/*
+!/tests/fixtures/.gitkeep
+
+# Editor / IDE
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+compile_commands.json
+.direnv/
+.cache/
+.editorconfig
+.clang-format
+
+# Misc
+*.log
+core
+core.*
