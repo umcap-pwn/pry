@@ -12,7 +12,7 @@
  * 	size_t cap;	<- reserved buffer capacity
  * };
  *
- * Invariants: buf[len] == 0x00; len < cap;
+ * Invariants: if (strbuf != NULL) { buf[len] == 0x00; len < cap; }
  * buf, if not null, points to the valid allocation of size cap.
  */
 
@@ -43,6 +43,8 @@ void strbuf_free(struct strbuf *sb) {
 }
 
 static void strbuf_grow(struct strbuf *sb, size_t needed) {
+  if (needed > SIZE_MAX / 2 || sb->cap > SIZE_MAX / 2)
+    die("strbuf overflow");
   size_t new_cap = sb->cap * 2;
   if (new_cap < needed)
     new_cap = needed;
@@ -58,7 +60,7 @@ void strbuf_append(struct strbuf *sb, const char *str, size_t str_len) {
   if (str_len > sb->cap - (sb->len + 1))
     strbuf_grow(sb, str_len + (sb->len + 1));
 
-  memcpy(sb->buf + sb->len, str, str_len);
+  memmove(sb->buf + sb->len, str, str_len);
   sb->len += str_len;
   sb->buf[sb->len] = '\0'; /* xrealloc from grow doesn't null the buffer */
 }
