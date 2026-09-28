@@ -31,6 +31,7 @@ void *xmalloc(size_t n) ALLOC_SIZE(1) RETURNS_NONNULL;
 void *xcalloc(size_t n, size_t sz) ALLOC_SIZE_NXM(1, 2) RETURNS_NONNULL;
 void *xrealloc(void *p, size_t n) ALLOC_SIZE(2) RETURNS_NONNULL;
 char *xstrdup(const char *s) RETURNS_NONNULL;
+char *xstrndup(const char *s, size_t n) RETURNS_NONNULL ALLOC_SIZE(2);
 
 /* Struct strbuf - a vector-like structure to hold a null-terminated string */
 struct strbuf {
@@ -41,7 +42,7 @@ struct strbuf {
 
 void strbuf_init(struct strbuf *sb);
 void strbuf_append(struct strbuf *sb, const char *str, size_t len);
-void strbuf_appendf(struct strbuf *sb, const char *fmt, ...);
+void strbuf_appendf(struct strbuf *sb, const char *fmt, ...) PRINTF_FMT(2, 3);
 void strbuf_reset(struct strbuf *sb);
 void strbuf_free(struct strbuf *sb);
 

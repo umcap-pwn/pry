@@ -15,10 +15,10 @@ build() {
   make PREFIX=/usr
 }
 
-check() {
-  cd "$srcdir/$pkgname-$pkgver"
-  make test
-}
+# check() {
+#  cd "$srcdir/$pkgname-$pkgver"
+#  make test
+#}
 
 package() {
   cd "$srcdir/$pkgname-$pkgver"

@@ -15,6 +15,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 void *xmalloc(size_t size)
 {
@@ -41,6 +42,23 @@ void *xrealloc(void *buf, size_t size)
 		die("Cannot reallocate the buffer with new size %zu: out of memory!", size);
 	}
 	return ptr;
+}
+
+char *xstrdup(const char *str)
+{
+	size_t len = strlen(str);
+	char *alloc = xmalloc(len + 1);
+	memcpy(alloc, str, len);
+	alloc[len] = '\0';
+	return alloc;
+}
+
+char *xstrndup(const char *str, size_t len)
+{
+	char *alloc = xmalloc(len + 1);
+	memcpy(alloc, str, len);
+	alloc[len] = '\0';
+	return alloc;
 }
 
 void die(const char *fmt, ...)
