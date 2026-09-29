@@ -12,8 +12,8 @@
  * 	size_t cap;	<- reserved buffer capacity
  * };
  *
- * Invariants: if (strbuf != NULL) { buf[len] == 0x00; len < cap; }
- * buf, if not null, points to the valid allocation of size cap.
+ * Invariants: if (strbuf != NULL) { buf[len] == '\0'; len < cap; }
+ * sb.buf, if not null, points to the valid allocation of size cap.
  */
 
 #include "pry/util.h"
