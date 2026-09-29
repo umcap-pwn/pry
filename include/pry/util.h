@@ -1,5 +1,5 @@
-#ifndef UTIL_H
-#define UTIL_H
+#ifndef PRY_UTIL_H
+#define PRY_UTIL_H
 #include <stddef.h>
 
 #if defined(__GNUC__) || defined(__clang__)
@@ -46,4 +46,4 @@ void strbuf_appendf(struct strbuf *sb, const char *fmt, ...) PRINTF_FMT(2, 3);
 void strbuf_reset(struct strbuf *sb);
 void strbuf_free(struct strbuf *sb);
 
-#endif
+#endif /* PRY_UTIL_H */
