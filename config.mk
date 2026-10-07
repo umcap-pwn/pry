@@ -20,16 +20,16 @@ DESTDIR  =
 
 CC       = cc
 # -Wpedantic
-CFLAGS  = -std=c11 -O2 -g -Wall -Wextra  -Wshadow -Wconversion \
+CFLAGS  = -std=c11 -O3 -g -Wall -Wextra  -Wshadow -Wconversion \
           -Wformat=2 -Wformat-security -Wnull-dereference \
           -fstack-protector-strong -fstack-clash-protection \
-          -fcf-protection=full -fPIE
+          -fcf-protection=full -fPIE -flto
 
 CPPFLAGS = -Iinclude -DVERSION=\"$(VERSION)\" \
            -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 \
            -D_POSIX_C_SOURCE=200809L
 
-LDFLAGS = -pie -Wl,-z,relro,-z,now -Wl,-z,noexecstack -Wl,-z,defs
+LDFLAGS = -pie -Wl,-z,relro,-z,now -Wl,-z,noexecstack -Wl,-z,defs -flto
 
 ifdef DEBUG
 	CFLAGS += -O0 -fno-omit-frame-pointer -fsanitize=address,undefined
