@@ -5,6 +5,7 @@
 #ifndef PRY_ELF_H
 #define PRY_ELF_H
 
+#include "pry/file.h"
 #include <elf.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -13,31 +14,40 @@
  * The elf type, which holds the handles, key properties
  * and mappings for an elf file. It is assumed that a single instance
  * of this structure exists thoroughout the entire program runtime.
+ *
+ * `elf` is built on top of `file` structure and used only within
+ * elf-specific subcomands. For general file-related defenitions
+ * see "include/pry/file.h"
  */
 struct elf {
-	/* Part 1: ownership */
-	int fd;
-	void *map;
-	size_t size;
+	struct file file;
 
-	/* Part 2: classification */
 	int elf_class;
 	int endian;
 	uint16_t e_type;
 	uint16_t e_machine;
 
-	/* Part 3: mapping */
-	const void *ehdr;
-	const void *phdr;
-	size_t phnum;
-	size_t phentsize;
-	const void *shdr;
-	size_t shnum;
-	size_t shentsize;
-	size_t shstrndx;
+	const void *ehdr, *phdr, *shdr;
+	size_t phnum, phentsize, shnum, shentsize, shstrndx;
 };
 
-int elf_open(struct elf *elf, const char *path);
+enum elf_err {
+	ELF_OK = 0,
+	ELF_ERR_IO,
+	ELF_ERR_TOO_SMALL,
+	ELF_ERR_BAD_MAGIC,
+	ELF_ERR_BAD_CLASS,
+	ELF_ERR_BAD_ENDIAN,
+	ELF_ERR_BAD_VERSION,
+	ELF_ERR_BAD_PHDR,
+	ELF_ERR_BAD_SHDR,
+};
+
+/*
+ *  On ELF_ERR_IO errno is set and indicating error
+ *  cause; it must be used before any other syscall
+ */
+enum elf_err elf_open(struct elf *elf, const char *path);
 void elf_close(struct elf *elf);
 
 #endif /* PRY_ELF_H */

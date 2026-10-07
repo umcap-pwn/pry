@@ -1,63 +1,84 @@
 #include "pry/elf.h"
-#include "pry/cmd.h"
-#include "pry/util.h"
+#include "pry/file.h"
 #include <string.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <sys/mman.h>
+
+static enum elf_err elf_validate_header(const Elf64_Ehdr *e, size_t file_size)
+{
+	/*
+	 * For the first version of the project,
+	 * several choices were made to facilitate implementation.
+	 * Among them:
+	 *  - only host endianness is supported
+	 *  - only 64-bit binaries are supported
+	 */
+
+	if (memcmp(e->e_ident, ELFMAG, SELFMAG) != 0)
+		return ELF_ERR_BAD_MAGIC;
+
+	if (e->e_ident[EI_DATA] == ELFDATA2LSB)
+		return ELF_ERR_BAD_ENDIAN;
+	if (e->e_ident[EI_CLASS] != ELFCLASS64)
+		return ELF_ERR_BAD_CLASS;
+	if (e->e_ident[EI_VERSION] != EV_CURRENT)
+		return ELF_ERR_BAD_VERSION;
+
+	if (e->e_version != EV_CURRENT)
+		return ELF_ERR_BAD_VERSION;
+
+	if (e->e_phoff > file_size)
+		return ELF_ERR_BAD_PHDR;
+	if (((size_t)e->e_phnum * e->e_phentsize) > file_size - e->e_phoff)
+		return ELF_ERR_BAD_PHDR;
+
+	if (e->e_shoff > file_size)
+		return ELF_ERR_BAD_SHDR;
+	if (((size_t)e->e_shnum * e->e_shentsize) > file_size - e->e_shoff)
+		return ELF_ERR_BAD_SHDR;
+
+	return ELF_OK;
+}
 
 /*
  * Function to open elf file and fill up the elf struct
- * Both arguments must be nonnul valid pointers
  */
-int elf_open(struct elf *elf, const char *path)
+enum elf_err elf_open(struct elf *elf, const char *path)
 {
-	/* Elf_open is not idempotent. caller must provide empty struct elf;
-	 * memory leaks possible otherwise */
-	memset(elf, 0, sizeof(struct elf));
+	memset(elf, 0, sizeof *elf);
+	struct file f = {0};
+	if (file_open(&f, path) < 0)
+		return ELF_ERR_IO;
 
-	int fd = open(path, 0, O_RDONLY);
-	if (fd == -1) {
-		perror("cannot open file");
-		exit(EXIT_FAILURE);
+	if (f.size <= sizeof(Elf64_Ehdr)) {
+		file_close(&f);
+		return ELF_ERR_TOO_SMALL;
 	}
+	Elf64_Ehdr *e = f.map;
 
-	struct stat file_stat = {0};
-	int res = fstat(fd, &file_stat);
-	if (res == -1) {
-		perror("cannot stat file");
-	}
+	enum elf_err err = elf_validate_header(e, f.size);
+	if (err)
+		return err;
 
-	/* By now and for the forseeable future
-	 * tool would support only regular files */
-	if (!S_ISREG(file_stat.st_mode)) {
-		die("refusing to process \"%s\": it is not a regular file", path);
-	}
-
-	void *map = mmap(NULL, (size_t)file_stat.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
-
-	struct elf e = {
-	    fd,	  map,	(size_t)file_stat.st_size,
-
-	    0,	  0,	0,
-	    0,
-
-	    NULL, NULL, 0,
-	    0,	  NULL, 0,
-	    0,	  0,
+	*elf = (struct elf){
+	    .file = f,
+	    .elf_class = ELFCLASS64,
+	    .endian = ELFDATA2LSB,
+	    .e_type = e->e_type,
+	    .e_machine = e->e_machine,
+	    .ehdr = f.map,
+	    .phdr = (char *)f.map + e->e_phoff,
+	    .shdr = (char *)f.map + e->e_shoff,
+	    .phnum = e->e_phnum,
+	    .phentsize = e->e_phentsize,
+	    .shnum = e->e_shnum,
+	    .shentsize = e->e_shentsize,
+	    .shstrndx = e->e_shstrndx,
 	};
 
-	*elf = e;
-
-	close(fd);
 	return 0;
 }
 
 void elf_close(struct elf *elf)
 {
-	munmap(elf->map, elf->size);
-	close(elf->fd);
+	file_close(&elf->file);
+	memset(elf, 0, sizeof(struct elf));
 }
