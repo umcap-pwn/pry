@@ -1,12 +1,12 @@
+/*
+ *  An interface to the entry() of a subcommand.
+ */
 #ifndef PRY_CMD_H
 #define PRY_CMD_H
 
 #include <stddef.h>
 #include "pry/util.h"
 
-/*
- *  An interface to the entry() of a subcommand.
- */
 struct cmd {
 	/* These two fields are mostly for user output */
 	const char *name;
