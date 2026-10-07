@@ -10,7 +10,7 @@ int cmd_hex(int argc, char **argv)
 	elf_open(&e, argv[1]);
 	elf_open(&e, argv[1]);
 
-	ssize_t _ = write(STDOUT_FILENO, e.map, e.size);
+	ssize_t _ = write(STDOUT_FILENO, e.file.map, e.file.size);
 	elf_close(&e);
 	return 0;
 }
