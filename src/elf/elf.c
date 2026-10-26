@@ -15,7 +15,7 @@ static enum elf_err elf_validate_header(const Elf64_Ehdr *e, size_t file_size)
 	if (memcmp(e->e_ident, ELFMAG, SELFMAG) != 0)
 		return ELF_ERR_BAD_MAGIC;
 
-	if (e->e_ident[EI_DATA] == ELFDATA2LSB)
+	if (e->e_ident[EI_DATA] != ELFDATA2LSB)
 		return ELF_ERR_BAD_ENDIAN;
 	if (e->e_ident[EI_CLASS] != ELFCLASS64)
 		return ELF_ERR_BAD_CLASS;
